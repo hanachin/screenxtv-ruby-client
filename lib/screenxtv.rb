@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'screenxtv/version'
 require 'pty'
 require 'io/console'
 require 'socket'
@@ -14,7 +15,7 @@ if `which screen`.empty?
 end
 
 def showVersion
-  print "ScreenX TV Ruby Client 0.0.11\n" #is there any good way to do this?
+  print "ScreenX TV Ruby Client #{ScreenXTV::VERSION}\n" #is there any good way to do this?
   exit
 end
 def showHelp
