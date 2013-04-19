@@ -25,23 +25,22 @@ module ScreenXTV
 
     desc "config [CHANNEL_NAME]", "Config your channel setting"
     def config(channel_name = Channel::DEFAULT_CHANNEL_NAME)
-      c = self.screenx_config
-      c.channels[channel_name] = Channel.configure(c.channels[channel_name].to_h)
-      self.screenx_config = c
+      channel_settings = self.screenx_config.channels[channel_name]
+      channel = Channel.new(channel_settings)
+      channel.config
+
+      self.screenx_config.channels[channel_name] = channel.settings
+      self.screenx_config.save
     end
 
     class_option :"config-file", type: :string, aliases: '-c', desc: 'Config file'
 
     no_tasks do
-      def screenx_config=(c)
-        ScreenXTV::Config.dump(options['config-file'], c)
-      end
-
       def screenx_config
-        ScreenXTV::Config.load(options['config-file'])
+        @screenx_config ||= ScreenXTV::Config.new(options['config-file'])
       end
 
-      def channel_exists?(channel_name = Channel::DEFAULT_CHANNEL_NAME)
+      def channel_exists?(channel_name)
         !self.screenx_config.channels[channel_name].nil?
       end
     end

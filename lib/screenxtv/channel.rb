@@ -4,20 +4,34 @@ module ScreenXTV
   class Channel
     DEFAULT_CHANNEL_NAME = 'default'
 
-    class << self
-      def shell
-        Thor::Shell::Basic.new
-      end
+    attr_accessor :settings
 
-      def configure(channel_settings)
-        channel_settings ||= {}
+    def initialize(settings)
+      self.settings = settings || {}
+    end
 
-        channel_settings[:url]   = shell.ask %|Create a new URL. If given "foo", your URL will be "http://#{ScreenXTV::HOST}/foo".\n|
-        channel_settings[:color] = shell.ask %|Terminal Color\n|, limited_to: %w(black white green novel)
-        channel_settings[:title] = shell.ask %|Title\n|
+    def shell
+      @shell ||= Thor::Shell::Basic.new
+    end
 
-        channel_settings
-      end
+    def config
+      config_url
+      config_color
+      config_title
+    end
+
+    private
+
+    def config_url
+      self.settings[:url] = shell.ask %|Create a new URL. If given "foo", your URL will be "http://#{ScreenXTV::HOST}/foo".\n|
+    end
+
+    def config_color
+      self.settings[:color] = shell.ask %|Terminal Color\n|, limited_to: %w(black white green novel)
+    end
+
+    def config_title
+      self.settings[:title] = shell.ask %|Title\n|
     end
   end
 end

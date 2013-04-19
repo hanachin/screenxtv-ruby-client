@@ -6,32 +6,43 @@ module ScreenXTV
   class Config
     DEFAULT_CONFIG_PATH  = "#{ENV['HOME']}/.screenxtv.yml"
 
-    class << self
-      def load(config_file_path = nil)
-        @config_file_path = File.expand_path(config_file_path || DEFAULT_CONFIG_PATH)
-        unless File.exists?(@config_file_path)
-          create_config_file
-        end
-        OpenStruct.new YAML.load_file @config_file_path
-      end
+    def initialize(config_file_path = nil)
+      load_or_create_config(config_file_path)
+    end
 
-      def dump(config_file_path = nil, config)
-        @config_file_path = File.expand_path(config_file_path || DEFAULT_CONFIG_PATH)
-        create_config_file(config.to_h)
+    def load_or_create_config(config_file_path)
+      @config_file_path = File.expand_path(config_file_path || DEFAULT_CONFIG_PATH)
+      if File.exists?(@config_file_path)
+        load_config
+      else
+        create_config
       end
+    end
 
-      def new_config
-        {
-          channels: {}
-        }
-      end
+    def load_config
+      @data = OpenStruct.new YAML.load_file @config_file_path
+    end
 
-      def create_config_file(c = new_config)
-        tempfile = Tempfile.open('screenxtv')
-        tempfile.write YAML.dump(c)
-        tempfile.close
-        FileUtils.mv(tempfile.path, @config_file_path)
-      end
+    def create_config
+      @data = new_config
+      save
+    end
+
+    def new_config
+      OpenStruct.new({
+        channels: {}
+      })
+    end
+
+    def channels
+      @data.channels
+    end
+
+    def save
+      tempfile = Tempfile.open('screenxtv')
+      tempfile.write YAML.dump(@data.to_h)
+      tempfile.close
+      FileUtils.mv(tempfile.path, @config_file_path)
     end
   end
 end
