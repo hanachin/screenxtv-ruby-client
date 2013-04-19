@@ -1,2 +1,4 @@
 #!/usr/bin/env ruby
-require 'screenxtv'
+require 'screenxtv/cli'
+
+ScreenXTV::CLI.start
